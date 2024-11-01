@@ -332,9 +332,8 @@ for word_set in all_word_sets:
     all_words.update(word_set)
 
 
-# --- MCQ Quiz (structured by category, improved distractor logic) ---
-
-num_questions_per_category = 5
+num_questions = 20
+num_questions_per_category = num_questions // len(all_word_sets)
 score = 0
 
 categories = {
@@ -344,39 +343,31 @@ categories = {
     "Unknown": unknown_words
 }
 
+all_known_words = extremely_recallable + mildly_recallable + hard_to_recall
+random.shuffle(all_known_words)
+
+
 print("\nWelcome to the Word Recall Challenge!\n")
-print("This quiz tests your memory and understanding of the report's key concepts.\n")
+print("First, carefully read the report provided. Pay close attention to the words used in the data analysis sections.") # User reads report.
+input("Press Enter when you're ready to begin the recall test...") # Press enter to continue
+# Questions for known words (mixed categories)
 
-for category_name, word_list in categories.items():
-    print(f"\n--- {category_name} Words ---\n")  
+for i in range(num_questions ):
+    word = all_known_words[i]
+    category_name = [cat for cat, word_list in categories.items() if word in word_list][0] 
 
-    for i in range(num_questions_per_category):
-        correct_word = random.choice(word_list)
-
-        other_categories = [words for cat, words in categories.items() if cat != category_name]
-        distractors = [random.choice(random.choice(other_categories)) for _ in range(2)]
-
-
-        options = distractors + [correct_word]
-        random.shuffle(options)
+    recall_response = input(f"Do you recall the word '{word.title()}' being mentioned in the report? (y/n): ").lower()
 
 
-        print(f"Question {i+1}: Which word is MOST closely related to the concept of '{category_name}' words?")
-        for j, option in enumerate(options):
-            print(f"{j+1}. {option.title()}")
-
-        answer = input("Your answer (1-3): ")
-        if options[int(answer)-1] == correct_word:
-            score +=1
-            print("correct")
-        else:
-            print(f"incorrect. The answer was: {correct_word.title()}.")
-
+    if recall_response == "y":
+        score += 1
+        print(f"Correct. '{word.title()}' is classified as a '{category_name}' word.")  # Provide feedback with the category
+    else:
+        print(f"Incorrect. '{word.title()}' *was* mentioned. It's categorized as '{category_name}'. Review the report.")
 
 
 print("\n--- Quiz Results ---")
 print(f"Your final score: {score}/{num_questions_per_category * len(categories)}")
 
-
-print("\nKey takeaway:  Memorability varies based on word properties and our engagement with the text.")
-print("Reflect on how the different word categories relate to the analysis and findings discussed in the report.")
+print("\nKey takeaway:  Our memory for words is influenced by multiple factors, including how salient they are in a given context.") # Final message
+print("Active engagement with the analysis and its key terms strengthens these memory connections.")
